@@ -6,7 +6,7 @@ import requests
 from bokeh import plotting, models, io, transform, palettes
 from selenium import webdriver
 
-from src.params import *
+from src.params import DEFAULTFORMAT, COLORS, get_palette_colors
 
 def shape_geojson(geography='county'):
     """ Loads shapefiles as geopandas dataframe.
@@ -22,11 +22,13 @@ def shape_geojson(geography='county'):
         print('reading in geojson/shape file...')
         return gpd.read_file(geography)
 
-def merge_to_geojson(shape_df, file_or_df, geoid_var, geoid_type,
+def merge_to_geodf(shape_df, file_or_df, geoid_var, geoid_type,
                      geolvl='county', how_merge='right'):
-    """ Combines data and geojson into Bokeh GeoJSONDataSource and dataframe.
+    """ Combines data and geojson into GeoPandas dataframe that can easily be
+    transformed into Bokeh GeoJSONDataSource.
+
     :param geography: (str) 'state', 'county', or filepath
-    :return: GeoJSONDataSource, DataFrame
+    :return: GeoPandas DataFrame
     """
     ## if file is string and not dataframe, read it in as dataframe
     if isinstance(file_or_df, str):
@@ -41,8 +43,7 @@ def merge_to_geojson(shape_df, file_or_df, geoid_var, geoid_type,
 
     geo_df = shape_df.merge(file_or_df, how=how_merge, left_on=shape_geoid, right_on=geoid_var,
                             suffixes=('ori', ''))
-    geo_source = models.GeoJSONDataSource(geojson=geo_df.to_json())
-    return geo_source, geo_df
+    return geo_df
 
 def draw_state(plot, formatting):
     state_source = models.GeoJSONDataSource(geojson=shape_geojson('state').to_json())
@@ -71,14 +72,17 @@ def draw_main(plot, geo_src, geo_df, y_var, y_type, formatting):
 
 
 def make_color_mapper(series, y_type, formatting):
-    if not formatting['cbar_min']:
-        formatting['cbar_min'] = min(series)
-    if not formatting['cbar_max']:
-        formatting['cbar_max'] = max(series)
-    palette = COLORS[y_type].get(formatting['palette']).get(formatting['ncolors'])
-    mod = {'lin':models.LinearColorMapper, 'log':models.LogColorMapper}[formatting['lin_or_log']]
-    color_mapper = mod(palette=palette, low = formatting['cbar_min'], high=formatting['cbar_max'])
-    return color_mapper
+    c_min = formatting.get('cbar_min', min(series))
+    c_max = formatting.get('cbar_max', max(series))
+
+    try:
+        palette = COLORS[y_type][formatting['palette']][formatting['ncolors']]
+    except KeyError:
+        palette = get_palette_colors(formatting['palette'], formatting['ncolors'])
+
+    mapper = {'lin':models.LinearColorMapper, 'log':models.LogColorMapper}[formatting['lin_or_log']]
+
+    return mapper(palette=palette, low=c_min, high=c_max)
 
 # def save_plot(plot, save_as):
 #     """ saves plot as particular format"""
@@ -91,15 +95,20 @@ def make_color_mapper(series, y_type, formatting):
 #
 
 def choropleth_county(file_or_df, geoid_var, geoid_type, y_var, y_type, state='before',
-                      formatting=None, output=False):
+                      formatting=None, output=False, dropna=True):
     """ Plots county-level choropleth
 
     """
+    FORMAT = DEFAULTFORMAT.copy()
     if formatting:
         FORMAT.update(formatting)
 
     shape_df = shape_geojson('county')
-    geo_src, geo_df = merge_to_geojson(shape_df, file_or_df, geoid_var, geoid_type)
+    geo_df = merge_to_geodf(shape_df, file_or_df, geoid_var, geoid_type)
+    if dropna:
+        geo_df = geo_df[geo_df[y_var].notnull()]
+
+    geo_src = models.GeoJSONDataSource(geojson=geo_df.to_json())
 
     plot = plotting.figure(title=FORMAT['title'], background_fill_color=FORMAT['background_color'],
                            plot_width=FORMAT['wt'], plot_height=FORMAT['ht'],

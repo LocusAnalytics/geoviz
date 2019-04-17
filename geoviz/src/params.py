@@ -3,13 +3,17 @@ Parameters for geoviz
 """
 from bokeh.palettes import *
 
-FORMAT = {## plot properties
+def get_palette_colors(palette_label, ncolors):
+    palette = eval(f'{palette_label}{ncolors}')
+    palette.reverse()
+    return palette
+
+DEFAULTFORMAT = {## plot properties
           'title':'', 'ht':800, 'wt':1000, 'background_color':None,
           ## main map properties
           'fill_alpha':0.8, 'line_color':'#d3d3d3', 'line_width':0.5,
           ## color bar properties
           'lin_or_log':'lin', 'ncolors':7, 'palette':1, 'cbar_text':'0,000',
-          'cbar_min':None, 'cbar_max':None,
           ## state map properties
           'st_alpha':1, 'st_fill':None, 'st_line_color':'black', 'st_line_width':1}
 
@@ -27,7 +31,6 @@ for ptype in palette_dict:
         COLORS[ptype][label] = {}
         COLORS[ptype][rank+1] = {}
         for n in range(3, max_n[ptype]+1):
-            palette = eval(f'{label}{n}')
-            palette.reverse()
+            palette = get_palette_colors(label, n)
             COLORS[ptype][label][n] = palette
             COLORS[ptype][rank+1][n] = palette
