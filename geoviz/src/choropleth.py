@@ -136,3 +136,5 @@ def choropleth_county(file_or_df, geoid_var, geoid_type, y_var, y_type, state='b
         if output == 'svg':
             plot.output_backend = 'svg'
         plotting.show(plot)
+    ## return to original state
+    FORMAT = DEFAULTFORMAT.copy()

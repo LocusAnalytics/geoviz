@@ -4,7 +4,7 @@ Parameters for geoviz
 from bokeh.palettes import *
 
 def get_palette_colors(palette_label, ncolors):
-    palette = eval(f'{palette_label}{ncolors}')
+    palette = eval(f'{palette_label}{ncolors}').copy()
     palette.reverse()
     return palette
 
