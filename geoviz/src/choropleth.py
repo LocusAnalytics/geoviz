@@ -137,4 +137,30 @@ def choropleth_county(file_or_df, geoid_var, geoid_type, y_var, y_type, state='b
             plot.output_backend = 'svg'
         plotting.show(plot)
     ## return to original state
+    io.reset_output()
+    FORMAT = DEFAULTFORMAT.copy()
+
+def empty_map(geo='state', formatting=None, output='svg'):
+    FORMAT = DEFAULTFORMAT.copy()
+    if formatting:
+        FORMAT.update(formatting)
+
+    shape_df = shape_geojson(geo, FORMAT['simplify'])
+    geo_src = models.GeoJSONDataSource(geojson=shape_df.to_json())
+
+    plot = plotting.figure(title=FORMAT['title'], background_fill_color=FORMAT['background_color'],
+                           plot_width=FORMAT['wt'], plot_height=FORMAT['ht'],
+                           tools=FORMAT['tools'])
+    plot.grid.grid_line_color = None
+    plot.axis.visible = False
+
+    plot.patches('xs', 'ys', fill_color=None, line_color=FORMAT['line_color'],
+                       line_width=FORMAT['line_width'], source=geo_src)
+
+    io.output_notebook()
+    if output == 'svg':
+        plot.output_backend = 'svg'
+    plotting.show(plot)
+
+    io.reset_output()
     FORMAT = DEFAULTFORMAT.copy()
