@@ -64,11 +64,8 @@ def draw_main(plot, geo_src, geo_df, y_var, y_type, formatting):
                       (y_var, f'@{y_var}')]
     plot.add_tools(hover)
 
-    color_bar = models.ColorBar(color_mapper=cmap, label_standoff=10, location='bottom_right',
-                                # formatter=models.NumeralTickFormatter('0,000'),
-                                formatter=models.NumeralTickFormatter(format=formatting['cbar_text']),
-                                background_fill_color=None)
-    plot.add_layout(color_bar)
+    cbar = make_color_bar(plot, cmap, formatting)
+    plot.add_layout(cbar)
 
 
 def make_color_mapper(series, y_type, formatting):
@@ -84,15 +81,36 @@ def make_color_mapper(series, y_type, formatting):
 
     return mapper(palette=palette, low=c_min, high=c_max)
 
-# def save_plot(plot, save_as):
-#     """ saves plot as particular format"""
-#     # 'https://chromedriver.storage.googleapis.com/72.0.3626.69/chromedriver_mac64.zip'
-#     fformat = save_as.split('.')[-1]
-#     save_fx = {'png':io.export_png, 'html':io.output_file, 'svg':io.export_svgs}[fformat]
-#     if fformat == 'svg':
-#         plot.output_backend = "svg"
-#     save_fx(plot, save_as, webdriver=webdriver.Chrome())
-#
+def make_color_bar(plot, cmap, formatting):
+    color_bar = models.ColorBar(color_mapper=cmap, label_standoff=10, location='bottom_right',
+                                background_fill_color=None, 
+
+                                formatter=models.NumeralTickFormatter(format=formatting['cbar_textfmt']),
+                                major_label_text_font_size=formatting['cbar_fontsize'],
+                                major_label_text_font=formatting['font'],
+                                major_tick_line_color=formatting['cbar_tick_color'],
+                                major_tick_line_alpha=formatting['cbar_tick_alpha'],
+
+                                title=formatting['cbar_title'],
+                                title_text_font_size=formatting['cbar_fontsize'],
+                                title_text_font=formatting['font'],
+                                title_text_align=formatting['cbar_title_align'],
+                                title_text_font_style=formatting['cbar_style'],
+                                title_standoff=int(formatting['ht']*0.01))
+    return color_bar
+
+def initialize_plot(formatting):
+    plot = plotting.figure(title=formatting['title'],
+                           background_fill_color=formatting['background_color'],
+                           plot_width=formatting['wt'], plot_height=formatting['ht'],
+                           tools=formatting['tools'])
+    plot.title.text_font = formatting['font']
+    plot.title.text_font_size = formatting['title_fontsize']
+    plot.grid.grid_line_color = None
+    plot.axis.visible = False
+    plot.border_fill_color
+    plot.outline_line_color=None
+    return plot
 
 def choropleth_county(file_or_df, geoid_var, geoid_type, y_var, y_type, state='before',
                       formatting=None, output=False, dropna=True):
