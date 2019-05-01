@@ -8,19 +8,21 @@ from selenium import webdriver
 
 from src.params import DEFAULTFORMAT, COLORS, get_palette_colors
 
-def shape_geojson(geography='county'):
+def shape_geojson(geography='county', simplify=0):
     """ Loads shapefiles as geopandas dataframe.
     :param geography: (str) 'state', 'county', or filepath
     :return: DataFrame
     """
     if geography == 'county':
-        return gpd.read_file('data/shapefiles/us-albers-counties.json.txt')
+        geo_df = gpd.read_file('data/shapefiles/us-albers-counties.json.txt')
     elif geography == 'state':
-        return gpd.read_file('data/shapefiles/us-albers.json.txt')
+        geo_df = gpd.read_file('data/shapefiles/us-albers.json.txt')
     else:
         ## if using custom shapefile
         print('reading in geojson/shape file...')
-        return gpd.read_file(geography)
+        geo_df = gpd.read_file(geography)
+    geo_df['geometry'] = geo_df.simplify(simplify)
+    return geo_df
 
 def merge_to_geodf(shape_df, file_or_df, geoid_var, geoid_type,
                      geolvl='county', how_merge='right'):
@@ -46,7 +48,8 @@ def merge_to_geodf(shape_df, file_or_df, geoid_var, geoid_type,
     return geo_df
 
 def draw_state(plot, formatting):
-    state_source = models.GeoJSONDataSource(geojson=shape_geojson('state').to_json())
+    state_geojson = shape_geojson('state', formatting['simplify']).to_json()
+    state_source = models.GeoJSONDataSource(geojson=state_geojson)
     plot.patches('xs', 'ys', source=state_source, fill_alpha=formatting['st_alpha'],
                  line_color=formatting['st_line_color'], line_width=formatting['st_line_width'],
                  fill_color=formatting['st_fill'])
@@ -59,7 +62,6 @@ def draw_main(plot, geo_src, geo_df, y_var, y_type, formatting):
                        line_width=formatting['line_width'], source=geo_src)
 
     hover = models.HoverTool(renderers=[shapes])
-
     hover.tooltips = [('name', '@name'),
                       (y_var, f'@{y_var}')]
     plot.add_tools(hover)
@@ -114,23 +116,18 @@ def initialize_plot(formatting):
 
 def choropleth_county(file_or_df, geoid_var, geoid_type, y_var, y_type, state='before',
                       formatting=None, output=False, dropna=True):
-    """ Plots county-level choropleth
-
-    """
     FORMAT = DEFAULTFORMAT.copy()
     if formatting:
         FORMAT.update(formatting)
 
-    shape_df = shape_geojson('county')
+    shape_df = shape_geojson('county', FORMAT['simplify'])
     geo_df = merge_to_geodf(shape_df, file_or_df, geoid_var, geoid_type)
     if dropna:
         geo_df = geo_df[geo_df[y_var].notnull()]
 
     geo_src = models.GeoJSONDataSource(geojson=geo_df.to_json())
 
-    plot = plotting.figure(title=FORMAT['title'], background_fill_color=FORMAT['background_color'],
-                           plot_width=FORMAT['wt'], plot_height=FORMAT['ht'],
-                           tools='save, pan, box_zoom, reset', active_drag = 'box_zoom')
+    plot = initialize_plot(FORMAT)
 
     if state == 'before':
         draw_state(plot, FORMAT)
@@ -141,8 +138,6 @@ def choropleth_county(file_or_df, geoid_var, geoid_type, y_var, y_type, state='b
         draw_state(plot, FORMAT)
 
     # ## county
-    plot.grid.grid_line_color = None
-    plot.axis.visible = False
 
     if output == 'bokeh':
         return plot
@@ -154,6 +149,7 @@ def choropleth_county(file_or_df, geoid_var, geoid_type, y_var, y_type, state='b
         if output == 'svg':
             plot.output_backend = 'svg'
         plotting.show(plot)
+
     ## return to original state
     io.reset_output()
     FORMAT = DEFAULTFORMAT.copy()
