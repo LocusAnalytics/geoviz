@@ -1,8 +1,8 @@
-import json
+""" module to plot choropleths """
 
 import pandas as pd
 import geopandas as gpd
-from bokeh import plotting, models, io, transform, palettes
+from bokeh import plotting, models, io
 
 from src.params import DEFAULTFORMAT, COLORS, get_palette_colors
 
@@ -44,7 +44,7 @@ def merge_to_geodf(shape_df, file_or_df, geoid_var, geoid_type, geolvl='county',
 
     ## identify which property of the geojson to merge on
     shape_geoid = {'state': {'fips':'fips_state', 'name':'name', 'abbrev':'iso_3166_2'},
-            'county': {'fips':'fips', 'name':'name'}}[geolvl][geoid_type]
+                   'county': {'fips':'fips', 'name':'name'}}[geolvl][geoid_type]
 
     geo_df = shape_df.merge(file_or_df, how=how_merge, left_on=shape_geoid, right_on=geoid_var,
                             suffixes=('ori', ''))
@@ -65,8 +65,8 @@ def initialize_plot(formatting):
     plot.title.text_font_size = formatting['title_fontsize']
     plot.grid.grid_line_color = None
     plot.axis.visible = False
-    plot.border_fill_color
-    plot.outline_line_color=None
+    plot.border_fill_color = None
+    plot.outline_line_color = None
     return plot
 
 
@@ -98,15 +98,15 @@ def draw_main(plot, geo_df, y_var, y_type, formatting):
     cmap = make_color_mapper(geo_df[y_var], y_type, formatting)
 
     shapes = plot.patches('xs', 'ys', fill_color={'field':y_var, 'transform': cmap},
-                       fill_alpha=formatting['fill_alpha'], line_color=formatting['line_color'],
-                       line_width=formatting['line_width'], source=geo_src)
+                          fill_alpha=formatting['fill_alpha'], line_color=formatting['line_color'],
+                          line_width=formatting['line_width'], source=geo_src)
 
     hover = models.HoverTool(renderers=[shapes])
     hover.tooltips = [('name', '@name'),
                       (y_var, f'@{y_var}')]
     plot.add_tools(hover)
 
-    cbar = make_color_bar(plot, cmap, formatting)
+    cbar = make_color_bar(cmap, formatting)
     plot.add_layout(cbar)
 
 
@@ -131,23 +131,21 @@ def make_color_mapper(y_values, y_type, formatting):
     return mapper(palette=palette, low=c_min, high=c_max)
 
 
-def make_color_bar(plot, cmap, formatting):
+def make_color_bar(cmap, formatting):
     """ Generates color bar from make_color_mapper()
 
-    :param (Bokeh object) plot: pre-defined Bokeh figure
     :param (Bokeh object) cmap: colormapper from make_color_mapper()
     :param (dict) formatting: see DEFAULTFORMAT from params.py
     :return: None (adds to Bokeh object) """
 
     color_bar = models.ColorBar(color_mapper=cmap, label_standoff=10, location='bottom_right',
                                 background_fill_color=None,
-
-                                formatter=models.NumeralTickFormatter(format=formatting['cbar_textfmt']),
+                                formatter=models.NumeralTickFormatter(
+                                format=formatting['cbar_textfmt']),
                                 major_label_text_font_size=formatting['cbar_fontsize'],
                                 major_label_text_font=formatting['font'],
                                 major_tick_line_color=formatting['cbar_tick_color'],
                                 major_tick_line_alpha=formatting['cbar_tick_alpha'],
-
                                 title=formatting['cbar_title'],
                                 title_text_font_size=formatting['cbar_fontsize'],
                                 title_text_font=formatting['font'],
@@ -231,14 +229,12 @@ def choropleth_county(file_or_df, geoid_var, geoid_type, y_var, y_type, state_ou
     plot = initialize_plot(FORMAT)
     draw_choropleth_layers(state_outline, plot, geo_df, y_var, y_type, FORMAT)
 
-    if output == 'bokeh':
-        return plot
-    else:
+    if output != 'bokeh':
         save_plot(plot, output)
-
-    ## return to original state
-    io.reset_output()
-    FORMAT = DEFAULTFORMAT.copy()
+        ## return to original state
+        io.reset_output()
+        FORMAT = DEFAULTFORMAT.copy()
+    return plot
 
 
 def empty_map(geo='state', formatting=None, output='svg'):
@@ -261,13 +257,11 @@ def empty_map(geo='state', formatting=None, output='svg'):
     ## plot and save choropleth
     plot = initialize_plot(formatting)
     plot.patches('xs', 'ys', fill_color=None, line_color=FORMAT['line_color'],
-                       line_width=FORMAT['line_width'], source=geo_src)
+                 line_width=FORMAT['line_width'], source=geo_src)
 
-    if output == 'bokeh':
-        return plot
-    else:
+    if output != 'bokeh':
         save_plot(plot, output)
-
-    ## return to original state
-    io.reset_output()
-    FORMAT = DEFAULTFORMAT.copy()
+        ## return to original state
+        io.reset_output()
+        FORMAT = DEFAULTFORMAT.copy()
+    return plot
