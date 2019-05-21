@@ -4,7 +4,7 @@ import pandas as pd
 import geopandas as gpd
 from bokeh import plotting, models, io
 
-from src.params import DEFAULTFORMAT, COLORS, LSAD, get_palette_colors
+from src.params import DEFAULTFORMAT, COLORS, LSAD, HEIGHT_RATIO, get_palette_colors
 
 def shape_geojson(geography='county', simplify=0.028):
     """ Loads GeoJSON/TopoJSON/shapefiles as geopandas DataFrame. String argument available only
@@ -84,7 +84,8 @@ def initialize_plot(formatting):
 
     plot = plotting.figure(title=formatting['title'],
                            background_fill_color=formatting['background_color'],
-                           plot_width=formatting['wt'], plot_height=formatting['ht'],
+                           plot_width=formatting['width'],
+                           plot_height=formatting['width']*HEIGHT_RATIO,
                            tools=formatting['tools'])
     plot.title.text_font = formatting['font']
     plot.title.text_font_size = formatting['title_fontsize']
@@ -176,7 +177,7 @@ def make_color_bar(cmap, formatting):
                                 title_text_font=formatting['font'],
                                 title_text_align=formatting['cbar_title_align'],
                                 title_text_font_style=formatting['cbar_style'],
-                                title_standoff=int(formatting['ht']*formatting['title_sf_ratio']))
+                                title_standoff=int(formatting['width']*formatting['title_sf_ratio']))
 
     return color_bar
 

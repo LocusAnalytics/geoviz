@@ -8,8 +8,10 @@ def get_palette_colors(palette_label, ncolors):
     palette.reverse()
     return palette
 
+HEIGHT_RATIO = 0.6
+
 DEFAULTFORMAT = {## plot properties
-          'ht':600, 'wt':1000, 'background_color':None,
+          'width':1000, 'background_color':None,
           'title':'', 'font':'futura', 'title_fontsize':None,
           'tools':'zoom_in,zoom_out,pan,reset,save',
           ## main map properties
@@ -18,7 +20,7 @@ DEFAULTFORMAT = {## plot properties
           'lin_or_log':'lin', 'ncolors':7, 'palette':1,
           'cbar_fontsize':None, 'cbar_textfmt':'0,000',
           'cbar_title':'', 'cbar_title_align':'center','cbar_style':None,
-          'cbar_tick_color':'black', 'cbar_tick_alpha':1, 'title_sf_ratio':0.01,
+          'cbar_tick_color':'black', 'cbar_tick_alpha':1, 'title_sf_ratio':0.006,
           ## state map properties
           'st_alpha':1, 'st_fill':None, 'st_line_color':'black', 'st_line_width':1}
 
