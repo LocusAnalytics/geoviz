@@ -42,3 +42,6 @@ for ptype in palette_dict:
 
 for i in COLORS['sequential'][2]:
     COLORS['sequential'][2][i][-1] = '#0a3959'
+
+## legal statistical area definition
+LSAD = ['county', 'parish', 'city', 'borough', 'cty&bor', 'muny', 'municipio', 'municipality']

@@ -4,7 +4,7 @@ import pandas as pd
 import geopandas as gpd
 from bokeh import plotting, models, io
 
-from src.params import DEFAULTFORMAT, COLORS, get_palette_colors
+from src.params import DEFAULTFORMAT, COLORS, LSAD, get_palette_colors
 
 def shape_geojson(geography='county', simplify=0.028):
     """ Loads GeoJSON/TopoJSON/shapefiles as geopandas DataFrame. String argument available only
@@ -26,8 +26,23 @@ def shape_geojson(geography='county', simplify=0.028):
     geo_df['geometry'] = geo_df.simplify(simplify)
     return geo_df
 
+def strip_name(name, remove=LSAD):
+    """ Removes suffixes like '... County' or '... Parish' from area names.
 
-def merge_to_geodf(shape_df, file_or_df, geoid_var, geoid_type, geolvl='county', how_merge='right'):
+    :param (str) name: area name string to be processed
+    :param (list) remove: default is Legal Statistical Area Definition (see params.py)
+    :return: processed name """
+
+    words = name.split(' ')
+    if words[-1].lower() in remove:
+        name = ' '.join(words[:-1])
+    return name
+
+def cbsa_to_fips(df, cbsa_name):
+    omb = pd.read_csv('data/external/omb_msa_2017.csv', dtype=str)
+    return omb.merge(df, how='left', right_on=cbsa_name, left_on='cbsa')
+
+def merge_to_geodf(shape_df, file_or_df, geoid_var, geoid_type, geolvl='county', how_merge='inner'):
     """ Merges a DataFrame (or csv file) to a shape file on a geo ID (e.g FIPS code or name).
 
     :param (gpd.DataFrame) shape_df: geopandas DataFrame
@@ -41,6 +56,13 @@ def merge_to_geodf(shape_df, file_or_df, geoid_var, geoid_type, geolvl='county',
     ## if file is string and not DataFrame, read it in as dataframe
     if isinstance(file_or_df, str):
         file_or_df = pd.read_csv(file_or_df, dtype={geoid_var:str})
+
+    if geoid_type == 'name':
+        file_or_df[geoid_var] = file_or_df[geoid_var].apply(strip_name)
+    elif geoid_type == 'cbsa':
+        file_or_df = cbsa_to_fips(file_or_df, geoid_var)
+        geoid_var = 'fips'
+        geoid_type = 'fips'
 
     ## identify which property of the geojson to merge on
     shape_geoid = {'state': {'fips':'fips_state', 'name':'name', 'abbrev':'iso_3166_2'},
