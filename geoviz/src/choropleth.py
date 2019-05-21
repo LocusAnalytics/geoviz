@@ -48,6 +48,9 @@ def merge_to_geodf(shape_df, file_or_df, geoid_var, geoid_type, geolvl='county',
 
     geo_df = shape_df.merge(file_or_df, how=how_merge, left_on=shape_geoid, right_on=geoid_var,
                             suffixes=('ori', ''))
+    no_shape = set(file_or_df[geoid_var]) - set(geo_df[geoid_var])
+    if no_shape:
+        print(f'Areas with no shape found:\n{no_shape}')
     return geo_df
 
 
@@ -221,7 +224,7 @@ def choropleth_county(file_or_df, geoid_var, geoid_type, y_var, y_type, state_ou
     ## process data
     shape_df = shape_geojson('county', FORMAT['simplify'])
     geo_df = merge_to_geodf(shape_df, file_or_df, geoid_var, geoid_type,
-                            geolvl='county', how_merge='right')
+                            geolvl='county', how_merge='inner')
     if dropna:
         geo_df = geo_df[geo_df[y_var].notnull()]
 
