@@ -2,6 +2,8 @@
 
 from bokeh import plotting, models, io
 
+import src.preprocess as prc
+from src.params import DEFAULTFORMAT, PALETTES, HEIGHT_RATIO, get_palette_colors
 
 
 def initialize_plot(formatting):
@@ -42,13 +44,13 @@ def draw_main(bkplot, geo_df, y_var, y_type, geolabel, formatting):
                             fill_alpha=formatting['fill_alpha'],
                             line_color=formatting['line_color'],
                             line_width=formatting['line_width'], source=geo_src)
+    if y_type != 'categorical':
+        cbar = make_color_bar(cmap, formatting)
+        bkplot.add_layout(cbar)
 
     hover = models.HoverTool(renderers=[shapes])
     hover.tooltips = [('name', f'@{geolabel}'),
                       (y_var, f'@{y_var}')]
-
-    cbar = make_color_bar(cmap, formatting)
-    plot.add_layout(cbar)
     bkplot.add_tools(hover)
 
 
@@ -65,9 +67,14 @@ def make_color_mapper(y_values, y_type, formatting):
     except KeyError:
         palette = get_palette_colors(formatting['palette'], formatting['ncolors'])
 
-    mapper = {'lin':models.LinearColorMapper, 'log':models.LogColorMapper}[formatting['lin_or_log']]
-
-    return mapper(palette=palette, low=c_min, high=c_max)
+    if y_type in ['sequential', 'divergent']:
+        c_min = formatting.get('cbar_min', min(y_values))
+        c_max = formatting.get('cbar_max', max(y_values))
+        mapper_fx = {'lin':models.LinearColorMapper, 'log':models.LogColorMapper}
+        mapper = mapper_fx[formatting['lin_or_log']](palette=palette, low=c_min, high=c_max)
+    else:
+        mapper = models.CategoricalColorMapper(factors=y_values.unique(), palette=palette)
+    return mapper
 
 
 def make_color_bar(cmap, formatting):
