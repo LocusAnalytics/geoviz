@@ -15,6 +15,7 @@ pysal = "*"
 mapclassify = "*"
 bokeh = "*"
 ipywidgets = "*"
+us = "*"
 
 [requires]
 python_version = "3"
