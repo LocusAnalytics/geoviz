@@ -1,0 +1,52 @@
+state_name,state_abbr,state_fips,pct_beach,more
+Florida,FL,12,95,beach
+South Carolina,SC,45,89,beach
+Hawaii,HI,15,88,beach
+Virginia,VA,51,84,beach
+Delaware,DE,10,86,beach
+North Carolina,NC,37,71,beach
+California,CA,06,76,beach
+Utah,UT,49,23,mountain
+Montana,MT,30,19,mountain
+Wyoming,WY,56,19,mountain
+Vermont,VT,50,32,mountain
+Idaho,ID,16,22,mountain
+Colorado,CO,08,24,mountain
+Alabama,AL,01,64,beach
+Georgia,GA,13,65,beach
+District of Columbia,DC,11,76,beach
+West Virginia,WV,54,59,beach
+New Jersey,NJ,34,71,beach
+New York,NY,36,72,beach
+New Hampshire,NH,33,52,beach
+Maine,ME,23,59,beach
+Mississippi,MS,28,75,beach
+Tennessee,TN,47,58,beach
+Maryland,MD,24,74,beach
+Rhode Island,RI,44,74,beach
+Connecticut,CT,09,70,beach
+Massachusetts,MA,25,68,beach
+Kentucky,KY,21,68,beach
+Louisiana,LA,22,77,beach
+Pennsylvania,PA,42,65,beach
+Arkansas,AR,05,42,mountain
+Arizona,AZ,04,40,mountain
+Missouri,MO,29,66,beach
+Ohio,OH,39,70,beach
+Nevada,NV,32,54,beach
+Oregon,OR,41,57,beach
+New Mexico,NM,35,35,mountain
+Washington,WA,53,56,beach
+Oklahoma,OK,40,67,beach
+Indiana,IN,18,68,beach
+Illinois,IL,17,68,beach
+Alaska,AK,02,42,mountain
+Michigan,MI,26,60,beach
+Texas,TX,48,63,beach
+Wisconsin,WI,55,53,beach
+Minnesota,MN,27,54,beach
+Kansas,KS,20,61,beach
+Iowa,IA,19,59,beach
+North Dakota,ND,38,48,mountain
+South Dakota,SD,46,45,mountain
+Nebraska,NE,31,56,beach

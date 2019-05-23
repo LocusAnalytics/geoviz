@@ -122,10 +122,9 @@ def draw_state(bkplot, formatting):
                    line_color=formatting['st_line_color'], line_width=formatting['st_line_width'])
 
 
-def draw_choropleth_layers(order, bkplot, geo_df, y_var, y_type, geolabel, formatting):
+def draw_choropleth_layers(bkplot, geo_df, y_var, y_type, geolabel, formatting):
     """ Draws multi-layer choropleths (main + state outlines)
 
-    :param (str) order: ['before', 'after', 'both']; order of drawing state outline
     :param (Bokeh object) plot: pre-defined Bokeh figure
     :param (gpd.DataFrame) geo_df: merged geopandas DataFrame from merge_to_geodf()
     :param (str) y_var: column name of variable to plot
@@ -134,12 +133,12 @@ def draw_choropleth_layers(order, bkplot, geo_df, y_var, y_type, geolabel, forma
     :param (dict) formatting: see DEFAULTFORMAT from params.py
     :return: None (adds to Bokeh object) """
 
-    if order in ['before', 'both']:
+    if formatting['state_outline'] in ['before', 'both']:
         draw_state(bkplot, formatting)
     draw_main(bkplot, geo_df, y_var, y_type, geolabel, formatting)
-    if order == 'after':
+    if formatting['state_outline'] == 'after':
         draw_state(bkplot, formatting)
-    elif order == 'both':
+    elif formatting['state_outline'] == 'both':
         temp_formatting = formatting.copy()
         temp_formatting['st_fill'] = None
         draw_state(bkplot, temp_formatting)
@@ -165,16 +164,15 @@ def save_plot(bkplot, output):
         plotting.show(plot)
 
 
-def plot(file_or_df, geoid_var, geoid_type, y_var, y_type, state_outline=None,
-         geolvl='county', geolabel='name', formatting=None, output=False, dropna=True):
+def plot(file_or_df, geoid_var, geoid_type, y_var, y_type, geolvl='county', geolabel='name',
+         formatting=None, output=False, dropna=True):
     """Short summary.
 
     :param (str/pd.DataFrame) file_or_df: csv filepath or pandas/geopandas DataFrame with geoid_var
     :param (str) geoid_var: name of column containing the geo ID to match on
     :param (str) geoid_type: 'fips' (recommended), 'name', or 'abbrev' (state only)
     :param (str) y_var: column name of variable to plot
-    :param (str) y_type: 'sequential', 'divergent', or 'categorical' -- for palette
-    :param (str) state_outline: ['before','after','both','None']; when to plot state outline map
+    :param (str) y_type: 'sequential', 'sequential_single' (hue), 'divergent', or 'categorical'
     :param (str) geolvl: 'county' or 'state'
     :param (str) geolabel: column name to use. default is county/state name from shapefile
     :param (dict) formatting: if custom dict is passed, update DEFAULTFORMAT with those key-values
@@ -197,7 +195,8 @@ def plot(file_or_df, geoid_var, geoid_type, y_var, y_type, state_outline=None,
 
     ## plot and save choropleth
     bkplot = initialize_plot(temp_format)
-    draw_choropleth_layers(state_outline, bkplot, geo_df, y_var, y_type, geolabel, temp_format)
+    draw_choropleth_layers(bkplot, geo_df, y_var, y_type, geolabel, temp_format)
+
 
     if output != 'bokeh':
         save_plot(bkplot, output)
