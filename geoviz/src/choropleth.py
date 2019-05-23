@@ -23,7 +23,7 @@ def initialize_plot(formatting):
     bkplot.axis.visible = False
     bkplot.border_fill_color = None
     bkplot.outline_line_color = None
-    return plot
+    return bkplot
 
 
 def draw_main(bkplot, geo_df, y_var, y_type, geolabel, formatting):
@@ -50,7 +50,7 @@ def draw_main(bkplot, geo_df, y_var, y_type, geolabel, formatting):
 
     hover = models.HoverTool(renderers=[shapes])
     hover.tooltips = [('name', f'@{geolabel}'),
-                      (y_var, f'@{y_var}')]
+                      (y_var, f'@{y_var}{formatting["tooltip_text"]}')]
     bkplot.add_tools(hover)
 
 
@@ -63,13 +63,19 @@ def make_color_mapper(y_values, y_type, formatting):
     :return: Bokeh colormapper object """
 
     try:
-        palette = PALETTES[y_type][formatting['palette']][formatting['ncolors']]
-    except KeyError:
-        palette = get_palette_colors(formatting['palette'], formatting['ncolors'])
+        palette = PALETTES[y_type][formatting['palette']][formatting['ncolors']].copy()
+    except KeyError: ## if palette is not in default list
+        palette = get_palette_colors(formatting['palette'], formatting['ncolors']).copy()
+    except TypeError: ## if formatting['palette'] is a list
+        palette = formatting['palette'].copy()
+
+    if formatting['reverse_palette']:
+        palette.reverse()
 
     if y_type in ['sequential', 'divergent']:
-        c_min = formatting.get('cbar_min', min(y_values))
-        c_max = formatting.get('cbar_max', max(y_values))
+        c_min = formatting['min'] if isinstance(formatting['min'], (int, float)) else min(y_values)
+        c_max = formatting['max'] if isinstance(formatting['max'], (int, float)) else max(y_values)
+
         mapper_fx = {'lin':models.LinearColorMapper, 'log':models.LogColorMapper}
         mapper = mapper_fx[formatting['lin_or_log']](palette=palette, low=c_min, high=c_max)
     else:
@@ -85,8 +91,7 @@ def make_color_bar(cmap, formatting):
     :return: None (adds to Bokeh object) """
 
     color_bar = models.ColorBar(color_mapper=cmap, label_standoff=10, location='bottom_right',
-                                background_fill_color=None,
-                                formatter=models.NumeralTickFormatter(format=formatting['cbar_textfmt']),
+                                height=formatting['cbar_height'], background_fill_color=None,
                                 major_label_text_font_size=formatting['cbar_fontsize'],
                                 major_label_text_font=formatting['font'],
                                 major_tick_line_color=formatting['cbar_tick_color'],
@@ -96,8 +101,10 @@ def make_color_bar(cmap, formatting):
                                 title_text_font=formatting['font'],
                                 title_text_align=formatting['cbar_title_align'],
                                 title_text_font_style=formatting['cbar_style'],
-                                title_standoff=int(formatting['width']*formatting['title_sf']))
-
+                                title_standoff=int(formatting['width'] * \
+                                                   formatting['cbar_title_standoff_ratio']))
+    if formatting['cbar_textfmt']:
+        color_bar.formatter = models.NumeralTickFormatter(format=formatting['cbar_textfmt'])
     return color_bar
 
 
@@ -183,7 +190,7 @@ def plot(file_or_df, geoid_var, geoid_type, y_var, y_type, state_outline=None,
     ## process data
     shape_df = prc.shape_geojson(geolvl, temp_format['simplify'])
     geo_df = prc.merge_to_geodf(shape_df, file_or_df, geoid_var, geoid_type,
-                                geolvl=geolvl, how_merge='inner')
+                                geolvl=geolvl)
 
     if dropna:
         geo_df = geo_df[geo_df[y_var].notnull()]
@@ -218,7 +225,7 @@ def plot_empty(geo='state', formatting=None, output='svg'):
     geo_src = models.GeoJSONDataSource(geojson=shape_df.to_json())
 
     ## plot and save choropleth
-    bkplot = initialize_plot(formatting)
+    bkplot = initialize_plot(temp_format)
     bkplot.patches('xs', 'ys', fill_color=None, line_color=temp_format['line_color'],
                    line_width=temp_format['line_width'], source=geo_src)
 

@@ -17,15 +17,17 @@ LSAD = ['county', 'parish', 'city', 'borough', 'cty&bor', 'muny', 'municipio', '
 
 ## all parameters
 DEFAULTFORMAT = {'width':900, 'background_color':None,
-                 'title':'', 'font':'futura', 'title_fontsize':None,
                  'tools':'zoom_in,zoom_out,pan,reset,save',
+                 'title':'', 'font':'futura', 'title_fontsize':'14pt',
                  ## main map properties
-                 'fill_alpha':0.8, 'line_color':'#d3d3d3', 'line_width':0.5, 'simplify':0,
+                 'fill_alpha':1, 'line_color':'#d3d3d3', 'line_width':0.5, 'simplify':0,
+                 'tooltip_text':'',
                  ## color bar properties
-                 'lin_or_log':'lin', 'ncolors':7, 'palette':1,
-                 'cbar_fontsize':None, 'cbar_textfmt':'0,000',
+                 'ncolors':5, 'palette':1, 'min':None, 'max':None,
+                 'reverse_palette':False, 'lin_or_log':'lin',
+                 'cbar_height':'auto', 'cbar_fontsize':None, 'cbar_textfmt':None,
                  'cbar_title':'', 'cbar_title_align':'center', 'cbar_style':None,
-                 'cbar_tick_color':'black', 'cbar_tick_alpha':1, 'title_sf':0.006,
+                 'cbar_tick_color':'black', 'cbar_tick_alpha':1, 'cbar_title_standoff_ratio':0.006,
                  ## state map properties
                  'st_alpha':1, 'st_fill':None, 'st_line_color':'black', 'st_line_width':1}
 
