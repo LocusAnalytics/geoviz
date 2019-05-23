@@ -29,6 +29,7 @@ DEFAULTFORMAT = {'width':900, 'background_color':None,
                  'cbar_title':'', 'cbar_title_align':'center', 'cbar_style':None,
                  'cbar_tick_color':'black', 'cbar_tick_alpha':1, 'cbar_title_standoff_ratio':0.006,
                  ## state map properties
+                 'state_outline_options':['none', 'before', 'after', 'both'], 'state_outline':'none',
                  'st_alpha':1, 'st_fill':None, 'st_line_color':'black', 'st_line_width':1}
 
 ## default palette options
