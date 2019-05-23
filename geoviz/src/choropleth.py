@@ -144,24 +144,19 @@ def draw_choropleth_layers(bkplot, geo_df, y_var, y_type, geolabel, formatting):
         draw_state(bkplot, temp_formatting)
 
 
-def save_plot(bkplot, output):
+def save_plot(bkplot, output=False):
     """ Determines how choropleth plot is saved.
 
     :param (Bokeh object) plot: pre-defined Bokeh figure
-    :param (str) output: ['svg', 'html', 'bokeh'] How plot should be saved.
-                         If 'html', saves as html.
-                         If 'svg' or default (None), outputs in Notebook; save using toolbar.
-                         If 'bokeh', outputs Bokeh figure object for further customization.
+    :param (str) output: filepath to save html file. if not specified, plots in notebook
     :return: None (adds to Bokeh object) """
 
-    if output == 'html':
-        io.output_file('bokeh_plot.html')
-        io.save(bkplot, 'bokeh_plot.html')
+    if output:
+        io.output_file(output)
+        io.save(bkplot, output)
     else:
-        io.output_notebook()
-        if output == 'svg':
-            bkplot.output_backend = 'svg'
-        plotting.show(plot)
+        io.output_notebook(hide_banner=True)
+        plotting.show(bkplot)
 
 
 def plot(file_or_df, geoid_var, geoid_type, y_var, y_type, geolvl='county', geolabel='name',
@@ -176,7 +171,7 @@ def plot(file_or_df, geoid_var, geoid_type, y_var, y_type, geolvl='county', geol
     :param (str) geolvl: 'county' or 'state'
     :param (str) geolabel: column name to use. default is county/state name from shapefile
     :param (dict) formatting: if custom dict is passed, update DEFAULTFORMAT with those key-values
-    :param (str) output: see save_plot()
+    :param (str) output: if specified, filepath to save html file. see save_plot().
     :param (bool) dropna: default True, if false, keeps rows where y_var is nan.
     :return: if output is 'bokeh', returns Bokeh object; else None """
 
@@ -197,21 +192,22 @@ def plot(file_or_df, geoid_var, geoid_type, y_var, y_type, geolvl='county', geol
     bkplot = initialize_plot(temp_format)
     draw_choropleth_layers(bkplot, geo_df, y_var, y_type, geolabel, temp_format)
 
+    if temp_format['svg']:
+        bkplot.output_backend = 'svg'
+    save_plot(bkplot, output)
+    ## return to original state
+    io.reset_output()
 
-    if output != 'bokeh':
-        save_plot(bkplot, output)
-        ## return to original state
-        io.reset_output()
-        temp_format = DEFAULTFORMAT.copy()
-    return plot
+    return bkplot
 
 
-def plot_empty(geo='state', formatting=None, output='svg'):
+
+def plot_empty(geo='state', formatting=None, output=False):
     """Generate map outline (no fill).
 
     :param (str) geo: 'state' or 'county'
     :param (dict) formatting: if custom dict is passed, update DEFAULTFORMAT with those key-values
-    :param (str) output: see save_plot()
+    :param (str) output: if specified, filepath to save html file. see save_plot().
     :return: if output is 'bokeh', returns Bokeh object; else None """
 
     ## get default plot formatting and update if necessary
@@ -228,9 +224,10 @@ def plot_empty(geo='state', formatting=None, output='svg'):
     bkplot.patches('xs', 'ys', fill_color=None, line_color=temp_format['line_color'],
                    line_width=temp_format['line_width'], source=geo_src)
 
-    if output != 'bokeh':
-        save_plot(bkplot, output)
-        ## return to original state
-        io.reset_output()
-        temp_format = DEFAULTFORMAT.copy()
+    if temp_format['svg']:
+        bkplot.output_backend = 'svg'
+    save_plot(bkplot, output)
+    ## return to original state
+    io.reset_output()
+
     return bkplot

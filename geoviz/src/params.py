@@ -17,8 +17,8 @@ LSAD = ['county', 'parish', 'city', 'borough', 'cty&bor', 'muny', 'municipio', '
 
 ## all parameters
 DEFAULTFORMAT = {'width':900, 'background_color':None,
-                 'tools':'zoom_in,zoom_out,pan,reset,save',
                  'title':'', 'font':'futura', 'title_fontsize':'14pt',
+                 'tools':'zoom_in,zoom_out,pan,reset,save', 'svg':None,
                  ## main map properties
                  'fill_alpha':1, 'line_color':'#d3d3d3', 'line_width':0.5, 'simplify':0,
                  'tooltip_text':'',
