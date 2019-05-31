@@ -13,7 +13,8 @@ def get_palette_colors(palette_label, ncolors):
 HEIGHT_RATIO = 0.6
 
 ## legal statistical area definition
-LSAD = ['county', 'parish', 'city', 'borough', 'cty&bor', 'muny', 'municipio', 'municipality']
+LSAD = ['county', 'parish', 'city', 'borough', 'cty&bor', 'census area',
+        'muny', 'municipio', 'municipality']
 
 ## all parameters
 DEFAULTFORMAT = {'width':900, 'background_color':None,

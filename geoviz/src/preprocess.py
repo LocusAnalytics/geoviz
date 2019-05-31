@@ -26,20 +26,20 @@ def shape_geojson(geography='county', simplify=0.028):
     return geo_df
 
 
-def strip_name(name, remove=None):
-    """ Removes suffixes like '... County' or '... Parish' from area names.
+def strip_name(name, remove=LSAD):
+    """ Removes suffixes like '... County', '... Parish', or '... County, Alabama' from area names.
 
     :param (str) name: area name string to be processed
     :param (list) remove: default is Legal Statistical Area Definition (see params.py)
     :return: processed name """
-    if remove is None:
-        remove = LSAD
 
-    words = name.split(' ')
-    if words[-1].lower() in remove:
-        name = ' '.join(words[:-1])
-    return name
+    length = len(name)
 
+    for flag_word in remove:
+        if flag_word in name.lower():
+            clean_name = name.lower().split(flag_word)[0].strip()
+            length = len(clean_name)
+    return name[:length]
 
 def cbsa_to_fips(msa_df, cbsa_var):
     """ Splits and duplicates rows in a CBSA/MSA dataset so the rows are the underlying counties.
