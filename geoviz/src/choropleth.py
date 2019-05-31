@@ -32,7 +32,7 @@ def draw_main(bkplot, geo_df, y_var, y_type, geolabel, formatting):
     :param (Bokeh object) plot: pre-defined Bokeh figure
     :param (gpd.DataFrame) geo_df: merged geopandas DataFrame from merge_to_geodf()
     :param (str) y_var: column name of variable to plot
-    :param (str) y_type: 'sequential', 'divergent', or 'categorical' -- for palette
+    :param (str) y_type: palette type: 'sequential', sequential_single', 'divergent', 'categorical'
     :param (str) geolabel: column name to use. default is county/state name from shapefile
     :param (dict) formatting: see DEFAULTFORMAT from params.py
     :return: None (adds to Bokeh object) """
@@ -49,8 +49,9 @@ def draw_main(bkplot, geo_df, y_var, y_type, geolabel, formatting):
         bkplot.add_layout(cbar)
 
     hover = models.HoverTool(renderers=[shapes])
-    hover.tooltips = [('name', f'@{geolabel}'),
-                      (y_var, f'@{y_var}{formatting["tooltip_text"]}')]
+    hover_ylabel = y_var if formatting['hover_ylabel'] is None else formatting['hover_ylabel']
+    hover.tooltips = [(formatting['hover_geolabel'], f'@{geolabel}'),
+                      (hover_ylabel, f'@{y_var}{formatting["tooltip_text"]}')]
     bkplot.add_tools(hover)
 
 
@@ -182,8 +183,7 @@ def plot(file_or_df, geoid_var, geoid_type, y_var, y_type, geolvl='county', geol
 
     ## process data
     shape_df = prc.shape_geojson(geolvl, temp_format['simplify'])
-    geo_df = prc.merge_to_geodf(shape_df, file_or_df, geoid_var, geoid_type,
-                                geolvl=geolvl)
+    geo_df = prc.merge_to_geodf(shape_df, file_or_df, geoid_var, geoid_type, geolvl=geolvl)
 
     if dropna:
         geo_df = geo_df[geo_df[y_var].notnull()]
@@ -199,7 +199,6 @@ def plot(file_or_df, geoid_var, geoid_type, y_var, y_type, geolvl='county', geol
     io.reset_output()
 
     return bkplot
-
 
 
 def plot_empty(geo='state', formatting=None, output=False):

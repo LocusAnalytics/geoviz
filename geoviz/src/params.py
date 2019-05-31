@@ -22,7 +22,7 @@ DEFAULTFORMAT = {'width':900, 'background_color':None,
                  'tools':'zoom_in,zoom_out,pan,reset,save', 'svg':None,
                  ## main map properties
                  'fill_alpha':1, 'line_color':'#d3d3d3', 'line_width':0.5, 'simplify':0,
-                 'tooltip_text':'',
+                 'tooltip_text':'', 'hover_geolabel':'Area name', 'hover_ylabel':None,
                  ## color bar properties
                  'ncolors':5, 'palette':1, 'min':None, 'max':None,
                  'reverse_palette':False, 'lin_or_log':'lin',
