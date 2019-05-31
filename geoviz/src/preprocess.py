@@ -41,6 +41,14 @@ def strip_name(name, remove=LSAD):
             length = len(clean_name)
     return name[:length]
 
+def check_fips(fips_code, geolvl):
+    """ forces fips code to have leading zeros """
+    fips_code = str(fips_code)
+    digits = {'county':5, 'state':2}.get(geolvl)
+    if len(fips_code) < digits:
+        fips_code = fips_code.rjust(digits, '0')
+    return fips_code
+
 def cbsa_to_fips(msa_df, cbsa_var):
     """ Splits and duplicates rows in a CBSA/MSA dataset so the rows are the underlying counties.
     This is done using pd.merge(). If there are duplicate column names, the passed df is kept as is,
@@ -50,6 +58,7 @@ def cbsa_to_fips(msa_df, cbsa_var):
     :param (str) cbsa_var: name of the CBSA/MSA code column
     :return: the new dataframe with additional columns ['cbsa', 'cbsa_name', 'county_name', 'fips']
     """
+
     omb = pd.read_csv('data/external/omb_msa_2017.csv', dtype=str)
     fips_df = omb.merge(msa_df, right_on=cbsa_var, left_on='cbsa',
                         how='inner', suffixes=('_omb', ''))
@@ -72,12 +81,16 @@ def merge_to_geodf(shape_df, file_or_df, geoid_var, geoid_type, geolvl='county')
     if isinstance(file_or_df, str):
         file_or_df = pd.read_csv(file_or_df, dtype={geoid_var:str})
 
+    ## processing of geo variables
     if geoid_type == 'name':
         file_or_df[geoid_var] = file_or_df[geoid_var].apply(strip_name)
     elif geoid_type == 'cbsa':
         file_or_df = cbsa_to_fips(file_or_df, geoid_var)
         geoid_var = 'fips'
         geoid_type = 'fips'
+
+    if geoid_type == 'fips':
+        file_or_df[geoid_var] = file_or_df[geoid_var].apply(check_fips, args=(geolvl,))
 
     ## identify which property of the geojson to merge on
     shape_geoid = {'state': {'fips':'fips_state', 'name':'name', 'abbrev':'iso_3166_2'},
