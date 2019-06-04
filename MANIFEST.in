@@ -1,0 +1,3 @@
+include geoviz/data/*.csv
+include geoviz/data/*.txt
+exclude data/test/*.csv
