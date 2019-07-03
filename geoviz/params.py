@@ -25,6 +25,7 @@ DEFAULTFORMAT = {'width':900, 'background_color':None,
                  'tooltip_text':'', 'hover_geolabel':'Area name', 'hover_ylabel':None,
                  ## color bar properties
                  'ncolors':5, 'palette':1, 'min':None, 'max':None,
+                 'low_color':None, 'high_color':None,
                  'reverse_palette':False, 'lin_or_log':'lin',
                  'cbar_height':'auto', 'cbar_fontsize':None, 'cbar_textfmt':None,
                  'cbar_title':'', 'cbar_title_align':'center', 'cbar_style':None,
