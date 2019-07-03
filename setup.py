@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='geoviz',
-      version='0.5',
+      version='0.6',
       description='Wrapper to easily make geo-based visualizations',
       long_description='See [tutorial](https://locusanalytics.github.io/files/geoviz_tutorial.html)',
       long_description_content_type = 'text/markdown',
@@ -18,5 +18,5 @@ setup(name='geoviz',
                         'descartes',
                         'pysal',
                         'us',
-                        "importlib_resources; python_version<'3.7'"
+                        "importlib_resources"
                         ])
