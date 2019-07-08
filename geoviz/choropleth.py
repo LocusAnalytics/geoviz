@@ -15,7 +15,8 @@ def initialize_plot(formatting):
                              background_fill_color=formatting['background_color'],
                              plot_width=formatting['width'],
                              plot_height=int(formatting['width']*HEIGHT_RATIO),
-                             tools=formatting['tools'])
+                             tools=formatting['tools'], active_drag=None)
+    bkplot.add_tools(models.BoxZoomTool(match_aspect=True))
     bkplot.title.text_font = formatting['font']
     bkplot.title.text_font_size = formatting['title_fontsize']
     bkplot.grid.grid_line_color = None
