@@ -2,7 +2,7 @@
 Plotting library for creating interactive and static choropleths.
 
 
-# Tutorial: http://locusanalytics.github.io/files/geoviz_tutorial.html
+*Tutorial*: http://locusanalytics.github.io/files/geoviz_tutorial.html
 
 
 Choropleths can take in dataframes or csv files, and plot sequential, divergent, and categorical data.
