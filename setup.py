@@ -1,9 +1,13 @@
 from setuptools import setup, find_packages
 
+def readme():
+    with open('README.md') as f:
+        return f.read()
+
 setup(name='geoviz',
-      version='0.5',
+      version='0.7.1',
       description='Wrapper to easily make geo-based visualizations',
-      long_description='See [tutorial](https://locusanalytics.github.io/files/geoviz_tutorial.html)',
+      long_description=readme(),
       long_description_content_type = 'text/markdown',
       url='https://github.com/LocusAnalytics/geoviz',
       author='W. Aaron Lee',
@@ -18,5 +22,5 @@ setup(name='geoviz',
                         'descartes',
                         'pysal',
                         'us',
-                        "importlib_resources; python_version<'3.7'"
+                        "importlib_resources"
                         ])

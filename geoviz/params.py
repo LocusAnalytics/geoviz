@@ -19,12 +19,13 @@ LSAD = ['county', 'parish', 'city', 'borough', 'cty&bor', 'census area',
 ## all parameters
 DEFAULTFORMAT = {'width':900, 'background_color':None,
                  'title':'', 'font':'futura', 'title_fontsize':'14pt',
-                 'tools':'zoom_in,zoom_out,pan,reset,save', 'svg':None,
+                 'tools':'pan,reset,save', 'svg':None,
                  ## main map properties
                  'fill_alpha':1, 'line_color':'#d3d3d3', 'line_width':0.5, 'simplify':0,
                  'tooltip_text':'', 'hover_geolabel':'Area name', 'hover_ylabel':None,
                  ## color bar properties
                  'ncolors':5, 'palette':1, 'min':None, 'max':None,
+                 'low_color':None, 'high_color':None,
                  'reverse_palette':False, 'lin_or_log':'lin',
                  'cbar_height':'auto', 'cbar_fontsize':None, 'cbar_textfmt':None,
                  'cbar_title':'', 'cbar_title_align':'center', 'cbar_style':None,

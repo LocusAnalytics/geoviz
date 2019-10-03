@@ -5,7 +5,6 @@ from bokeh import plotting, models, io
 import geoviz.preprocess as prc
 from geoviz.params import DEFAULTFORMAT, PALETTES, HEIGHT_RATIO, get_palette_colors
 
-
 def initialize_plot(formatting):
     """ Create Bokeh figure to which glyphs/elements can be added.
 
@@ -16,7 +15,8 @@ def initialize_plot(formatting):
                              background_fill_color=formatting['background_color'],
                              plot_width=formatting['width'],
                              plot_height=int(formatting['width']*HEIGHT_RATIO),
-                             tools=formatting['tools'])
+                             tools=formatting['tools'], active_drag=None)
+    bkplot.add_tools(models.BoxZoomTool(match_aspect=True))
     bkplot.title.text_font = formatting['font']
     bkplot.title.text_font_size = formatting['title_fontsize']
     bkplot.grid.grid_line_color = None
@@ -76,9 +76,12 @@ def make_color_mapper(y_values, y_type, formatting):
     if y_type in ['sequential', 'divergent']:
         c_min = formatting['min'] if isinstance(formatting['min'], (int, float)) else min(y_values)
         c_max = formatting['max'] if isinstance(formatting['max'], (int, float)) else max(y_values)
+        below_color = formatting['low_color'] if isinstance(formatting['low_color'], str) else None
+        above_color = formatting['high_color'] if isinstance(formatting['low_color'], str) else None
 
         mapper_fx = {'lin':models.LinearColorMapper, 'log':models.LogColorMapper}
-        mapper = mapper_fx[formatting['lin_or_log']](palette=palette, low=c_min, high=c_max)
+        mapper = mapper_fx[formatting['lin_or_log']](palette=palette, low=c_min, high=c_max,
+                                                     low_color=below_color, high_color=above_color)
     else:
         mapper = models.CategoricalColorMapper(factors=y_values.unique(), palette=palette)
     return mapper
@@ -166,7 +169,7 @@ def plot(file_or_df, geoid_var, geoid_type, y_var, y_type, geolvl='county', geol
 
     :param (str/pd.DataFrame) file_or_df: csv filepath or pandas/geopandas DataFrame with geoid_var
     :param (str) geoid_var: name of column containing the geo ID to match on
-    :param (str) geoid_type: 'fips' (recommended), 'name', or 'abbrev' (state only)
+    :param (str) geoid_type: 'fips' (recommended), 'cbsa', 'name', or 'abbrev' (state only)
     :param (str) y_var: column name of variable to plot
     :param (str) y_type: 'sequential', 'sequential_single' (hue), 'divergent', or 'categorical'
     :param (str) geolvl: 'county' or 'state'
@@ -187,6 +190,10 @@ def plot(file_or_df, geoid_var, geoid_type, y_var, y_type, geolvl='county', geol
 
     if dropna:
         geo_df = geo_df[geo_df[y_var].notnull()]
+
+    ## make sure column name does not have spaces -- important for hover tooltip
+    geo_df.rename(columns={y_var:y_var.replace(' ', '_')}, inplace=True)
+    y_var = y_var.replace(' ', '_')
 
     ## plot and save choropleth
     bkplot = initialize_plot(temp_format)
