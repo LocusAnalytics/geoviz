@@ -1,6 +1,6 @@
 # geoviz
 Plotting library for creating interactive and static choropleths.
-
+Download at https://pypi.org/project/geoviz.
 
 *Tutorial*: http://locusanalytics.github.io/files/geoviz_tutorial.html
 
