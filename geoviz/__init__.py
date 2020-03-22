@@ -1,2 +1,2 @@
 import geoviz.choropleth, geoviz.preprocess, geoviz.params
-__version__ = '0.7.1'
+__version__ = '1.0.1'

@@ -5,7 +5,7 @@ from bokeh.palettes import *
 
 def get_palette_colors(palette_label, ncolors):
     """ gets hexcodes of specified palette and reverses the order """
-    color_palette = eval(f'{palette_label}{ncolors}').copy()
+    color_palette = list(eval(f'{palette_label}{ncolors}')).copy()
     color_palette.reverse()
     return color_palette
 
