@@ -119,7 +119,7 @@ def draw_state(bkplot, formatting):
     :param (dict) formatting: see DEFAULTFORMAT from params.py
     :return: None (adds to Bokeh object) """
 
-    state_geojson = prc.shape_geojson('state', formatting['simplify']).to_json()
+    state_geojson = prc.shape_geojson('state', formatting['simplify'], epsg=formatting['epsg']).to_json()
     state_source = models.GeoJSONDataSource(geojson=state_geojson)
     bkplot.patches('xs', 'ys', source=state_source,
                    fill_color=formatting['st_fill'], fill_alpha=formatting['st_alpha'],
@@ -185,7 +185,7 @@ def plot(file_or_df, geoid_var, geoid_type, y_var, y_type, geolvl='county', geol
         temp_format.update(formatting)
 
     ## process data
-    shape_df = prc.shape_geojson(geolvl, temp_format['simplify'])
+    shape_df = prc.shape_geojson(geolvl, temp_format['simplify'], epsg=temp_format['epsg'])
     geo_df = prc.merge_to_geodf(shape_df, file_or_df, geoid_var, geoid_type, geolvl=geolvl)
 
     if dropna:
@@ -222,7 +222,7 @@ def plot_empty(geo='state', formatting=None, output=False):
         temp_format.update(formatting)
 
     ## process data
-    shape_df = prc.shape_geojson(geo, temp_format['simplify'])
+    shape_df = prc.shape_geojson(geo, temp_format['simplify'], epsg=temp_format['epsg'])
     geo_src = models.GeoJSONDataSource(geojson=shape_df.to_json())
 
     ## plot and save choropleth
