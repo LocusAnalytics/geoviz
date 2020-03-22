@@ -11,7 +11,7 @@ import geopandas as gpd
 from geoviz.params import LSAD
 from . import data
 
-def shape_geojson(geography='county', simplify=0.028):
+def shape_geojson(geography='county', simplify=0.028, epsg=2163):
     """ Loads GeoJSON/TopoJSON/shapefiles as geopandas DataFrame. String argument available only
     for composite state and county GeoJSON.
 
@@ -90,24 +90,26 @@ def merge_to_geodf(shape_df, file_or_df, geoid_var, geoid_type, geolvl='county')
     if isinstance(file_or_df, str):
         file_or_df = pd.read_csv(file_or_df, dtype={geoid_var:str})
 
+    df = file_or_df.copy()
     ## processing of geo variables
     if geoid_type == 'name':
-        file_or_df[geoid_var] = file_or_df[geoid_var].apply(strip_name)
+        df[geoid_var] = df[geoid_var].apply(strip_name)
     elif geoid_type == 'cbsa':
-        file_or_df = cbsa_to_fips(file_or_df, geoid_var)
+        df = cbsa_to_fips(df, geoid_var)
         geoid_var = 'fips'
         geoid_type = 'fips'
 
-    if geoid_type == 'fips':
-        file_or_df[geoid_var] = file_or_df[geoid_var].apply(check_fips, args=(geolvl,))
+    digits = {'county':5, 'state':2}.get(geolvl)
+    if digits:
+        df[geoid_var] = df[geoid_var].str.rjust(digits, '0')
 
     ## identify which property of the geojson to merge on
     shape_geoid = {'state': {'fips':'fips_state', 'name':'name', 'abbrev':'iso_3166_2'},
                    'county': {'fips':'fips', 'name':'name'}}[geolvl][geoid_type]
 
-    geo_df = shape_df.merge(file_or_df, how='inner', left_on=shape_geoid, right_on=geoid_var,
+    geo_df = shape_df.merge(df, how='inner', left_on=shape_geoid, right_on=geoid_var,
                             suffixes=('_shape', ''))
-    no_shape = set(file_or_df[geoid_var]) - set(geo_df[geoid_var])
+    no_shape = set(df[geoid_var]) - set(geo_df[geoid_var])
     if no_shape:
         print(f'Areas with no shape found:\n{no_shape}')
     return geo_df

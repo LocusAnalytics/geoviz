@@ -5,7 +5,7 @@ def readme():
         return f.read()
 
 setup(name='geoviz',
-      version='0.7.1',
+      version='1.0.1',
       description='Wrapper to easily make geo-based visualizations',
       long_description=readme(),
       long_description_content_type = 'text/markdown',

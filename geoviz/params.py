@@ -5,7 +5,7 @@ from bokeh.palettes import *
 
 def get_palette_colors(palette_label, ncolors):
     """ gets hexcodes of specified palette and reverses the order """
-    color_palette = eval(f'{palette_label}{ncolors}').copy()
+    color_palette = list(eval(f'{palette_label}{ncolors}')).copy()
     color_palette.reverse()
     return color_palette
 
@@ -21,7 +21,7 @@ DEFAULTFORMAT = {'width':900, 'background_color':None,
                  'title':'', 'font':'futura', 'title_fontsize':'14pt',
                  'tools':'pan,reset,save', 'svg':None,
                  ## main map properties
-                 'fill_alpha':1, 'line_color':'#d3d3d3', 'line_width':0.5, 'simplify':0,
+                 'fill_alpha':1, 'line_color':'#d3d3d3', 'line_width':0.5, 'simplify':0, 'epsg':2163,
                  'tooltip_text':'', 'hover_geolabel':'Area name', 'hover_ylabel':None,
                  ## color bar properties
                  'ncolors':5, 'palette':1, 'min':None, 'max':None,
